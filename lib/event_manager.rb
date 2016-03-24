@@ -13,13 +13,17 @@ def legislators_by_zipcode(zipcode)
 end
 
 def clean_telephone(telephone)
-	telephone.split("").each {|num| num.gsub!(/[^0-9]/, '')}.join('').to_i
+	new_num = telephone.to_s.split("").each {|num| num.gsub!(/[^0-9]/, '')}.join('')
+	if new_num.length == 11
+		if new_num[0].to_i == 1
+			new_num = new_num[1..-1]
+		end
+	end
+	new_num.to_i
 end
 
 def can_sign_for_text_service?(telephone)
-	return true if telephone.length == 10
-	return true if telephone.length == 11 && telephone.split("")[0].to_i == 1
-	return false
+	telephone.length == 10 ? true : false
 end
 
 def save_thank_you_letters(id,form_letter)
@@ -46,6 +50,7 @@ contents.each do |row|
 	legislators = legislators_by_zipcode(zipcode)
 	telephone = clean_telephone(row[:homephone])
 	text_service = can_sign_for_text_service?(telephone.to_s)
+	print "#{telephone}: #{text_service}\n"
 
 	form_letter = erb_template.result(binding)
 
